@@ -1,0 +1,109 @@
+agent:
+  name: "Setharkk"
+  max_iterations: 50
+  tool_timeout: 30
+  confirm_destructive: true
+
+memory:
+  long_term_top_k: 15
+
+  postgres:
+    host: "127.0.0.1"
+    port: 5434
+    database: "pieuvre"
+    user: "pieuvre"
+    password: "pieuvre2026"
+
+  embedding_model: "BAAI/bge-small-en-v1.5"
+  embedding_cache_dir: "D:/models"
+
+  neo4j:
+    uri: "bolt://127.0.0.1:7687"
+    user: "neo4j"
+    password: "setharkk2026"
+
+  knowledge_graph:
+    enabled: true
+    extraction_timeout: 30
+    max_facts_for_extraction: 15
+
+  scoring:
+    weight_similarity: 0.55
+    weight_importance: 0.15
+    weight_recency: 0.15
+    weight_frequency: 0.15
+    frequency_cap: 20
+    min_similarity: 0.3
+
+  extractor:
+    dedup_threshold: 0.85
+    max_per_session_search: 5
+    max_entities_per_session: 8
+    min_entity_name: 2
+    max_entity_name: 100
+    min_fact_length: 30
+
+context_manager:
+  compact_threshold: 40000        # 20K -> 40K (131K contexte, on peut garder plus)
+  keep_recent: 8                  # 6 -> 8 (plus de messages recents gardes)
+  summary_max_chars: 3000         # 2K -> 3K (resumes plus riches)
+  tool_result_threshold: 60000    # 30K -> 60K (moins de truncation pendant les boucles)
+  old_tool_truncation: 5000       # 3K -> 5K (plus de contenu preserve des anciens tools)
+  compact_keep_last: 6            # 4 -> 6 (plus de messages recents dans compact_tool_results)
+
+browser:
+  camoufox_ws: "ws://127.0.0.1:59001/"
+  navigate_timeout: 30000         # 20s -> 30s (pages lentes)
+  click_timeout: 5000
+  extract_max_chars: 50000        # 30K -> 50K (pages web completes)
+
+tools:
+  enabled:
+    - browser
+    - code_executor
+    - file_system
+    - search
+
+  defaults:
+    search_max_results: 10
+    code_timeout: 30
+    history_max_results: 15
+    graph_depth: 1
+    graph_max_depth: 3
+
+  file_system:
+    read_max_chars: 80000         # 50K -> 80K (memory.py fait 42K, marge pour les gros fichiers)
+    list_max_entries: 100         # 50 -> 100
+    search_max_matches: 50        # 30 -> 50
+
+  research:
+    max_browse_pages: 5           # 4 -> 5
+    max_browse_chars: 20000       # 15K -> 20K
+    search_timeout: 30
+    browse_timeout: 30            # 20 -> 30 (match tool_timeout)
+    compound_timeout: 180         # 120 -> 180 (5 pages x 30s = 150s)
+
+  code_review:
+    batch_chars_budget: 80000     # 60K -> 80K (plus de fichiers par batch)
+    max_file_lines: 500           # 300 -> 500 (memory.py fait 947 lignes)
+    file_read_timeout: 30
+    compound_timeout: 300         # 180 -> 300 (gros projets)
+
+boot:
+  identity_k: 5                  # 3 -> 5 (plus de contexte identite)
+  context_k: 7                   # 5 -> 7 (plus de souvenirs pertinents)
+  graph_k: 3                     # 2 -> 3 (plus d'entites du graphe)
+  graph_depth: 1
+  max_merged: 10                 # 7 -> 10 (avec plus de recalls, plus de souvenirs)
+
+resume:
+  min_messages: 3                # 5 -> 3 (sessions courtes aussi resumables)
+  last_n_messages: 15            # 10 -> 15 (plus de contexte a la reprise)
+
+reflection:
+  completude_ratio: 0.05         # calibre sur Qwen 3.5 9B (305 tokens observed)
+  completude_min_chars: 500
+  grounding_min_matches: 2
+  grounding_word_min_len: 6
+  pertinence_word_min_len: 4
+  task_completion_min_chars: 300  # calibre sur Qwen 3.5 9B

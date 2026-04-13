@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Claude Code
+.claude/
+
+# llama.cpp binaries and models
+llama.cpp/
+llama-bin/
+
+# Training data (contains personal interactions)
+training/
+
+# Reports
+reports/
+
+# Screenshots
+screenshot.png
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+neo4j_data/
+
+# Cache
+.cache/

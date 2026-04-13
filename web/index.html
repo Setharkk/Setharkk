@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setharkk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  /* ── Design Tokens ──────────────────────────────────────────────── */
+  :root {
+    --bg-deep: #050508;
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface-raised: #16161f;
+    --surface-glass: rgba(22, 22, 31, 0.7);
+    --border: rgba(255, 255, 255, 0.06);
+    --border-accent: rgba(192, 57, 43, 0.3);
+    --text: #e8e8ef;
+    --text-secondary: #8888a0;
+    --text-muted: #555568;
+    --accent: #c0392b;
+    --accent-bright: #e74c3c;
+    --accent-glow: rgba(192, 57, 43, 0.15);
+    --accent-glow-strong: rgba(192, 57, 43, 0.35);
+    --think-color: #3498db;
+    --think-bg: rgba(52, 152, 219, 0.06);
+    --act-color: #f39c12;
+    --act-bg: rgba(243, 156, 18, 0.06);
+    --observe-color: #2ecc71;
+    --observe-bg: rgba(46, 204, 113, 0.06);
+    --system-color: #9b59b6;
+    --error-color: #e74c3c;
+    --subagent-color: #1abc9c;
+    --subagent-bg: rgba(26, 188, 156, 0.06);
+    --font-display: 'Outfit', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Cascadia Code', monospace;
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --shadow-glow: 0 0 30px var(--accent-glow);
+  }
+
+  /* ── Reset ──────────────────────────────────────────────────────── */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ── Body ───────────────────────────────────────────────────────── */
+  body {
+    background: var(--bg-deep);
+    color: var(--text);
+    font-family: var(--font-display);
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ────────────────────────────────────────────────────── */
+  .sidebar {
+    width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-glyph {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .logo-glyph img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .logo-name {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--text), var(--text-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .sidebar-section {
+    padding: 16px 20px 8px;
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .status-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    flex-shrink: 0;
+    transition: all 0.4s;
+  }
+  .status-indicator.on {
+    background: #2ecc71;
+    box-shadow: 0 0 8px rgba(46, 204, 113, 0.4);
+  }
+  .status-indicator.err {
+    background: var(--error-color);
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.4);
+  }
+
+  .cmd-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .cmd-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .cmd-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+
+  .cmd-key {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 65px;
+  }
+
+  .tools-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .tool-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+  }
+  .tool-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--act-color);
+    opacity: 0.6;
+  }
+
+  .sidebar-scroll {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  /* ── Main Area ──────────────────────────────────────────────────── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--bg);
+    position: relative;
+  }
+
+  /* Background texture */
+  .main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 0%, var(--accent-glow) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(52,152,219,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Header bar ─────────────────────────────────────────────────── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: relative;
+    z-index: 2;
+  }
+
+  .topbar-title {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+
+  .topbar-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .mobile-toggle {
+    display: none;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  /* ── Chat ────────────────────────────────────────────────────────── */
+  #chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.08) transparent;
+  }
+
+  #chat::-webkit-scrollbar { width: 5px; }
+  #chat::-webkit-scrollbar-track { background: transparent; }
+  #chat::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+
+  /* ── Welcome ─────────────────────────────────────────────────────── */
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+    padding: 40px 20px;
+    animation: fadeUp 0.6s ease-out;
+  }
+
+  .welcome-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-glow), 0 0 60px var(--accent-glow);
+  }
+
+  .welcome-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .welcome h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .welcome p {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 400px;
+    line-height: 1.6;
+  }
+
+  .welcome-cmds {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 24px;
+    max-width: 420px;
+    width: 100%;
+  }
+
+  .welcome-cmd {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .welcome-cmd:hover {
+    border-color: var(--border-accent);
+    background: rgba(192, 57, 43, 0.04);
+  }
+  .welcome-cmd-key {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .welcome-cmd-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* ── Messages ────────────────────────────────────────────────────── */
+  .msg {
+    max-width: 80%;
+    padding: 14px 18px;
+    border-radius: var(--radius-md);
+    line-height: 1.7;
+    font-size: 14px;
+    word-wrap: break-word;
+    animation: fadeUp 0.25s ease-out;
+    position: relative;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg-user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, var(--accent), #a93226);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 2px 12px var(--accent-glow);
+  }
+
+  .msg-response {
+    align-self: flex-start;
+    max-width: 100%;
+    width: 100%;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+  }
+
+  /* Markdown inside responses */
+  .msg-response strong { color: var(--text); font-weight: 600; }
+  .msg-response em { font-style: italic; color: var(--text-secondary); }
+  .msg-response ul, .msg-response ol { padding-left: 20px; margin: 6px 0; }
+  .msg-response li { margin: 2px 0; }
+
+  .msg-response code {
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent-bright);
+  }
+
+  .msg-response pre {
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    margin: 10px 0;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .msg-response pre code {
+    background: none;
+    padding: 0;
+    color: var(--text);
+  }
+
+  /* Step messages */
+  .msg-step {
+    align-self: flex-start;
+    max-width: 95%;
+    padding: 12px 16px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    border-radius: var(--radius-sm);
+    border-left: 4px solid;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+  }
+
+  .msg-think {
+    border-color: var(--think-color);
+    background: rgba(52, 152, 219, 0.08);
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+    font-size: 12px;
+  }
+  .msg-think.collapsed {
+    max-height: 32px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .msg-think .expand-hint {
+    font-size: 10px;
+    color: var(--think-color);
+    opacity: 0.7;
+    margin-left: 8px;
+  }
+
+  .msg-act {
+    border-color: var(--act-color);
+    background: rgba(243, 156, 18, 0.10);
+    color: var(--text);
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .msg-act .tool-name {
+    color: var(--act-color);
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .msg-act .tool-args {
+    color: var(--text-secondary);
+    font-size: 12px;
+    word-break: break-all;
+  }
+
+  .msg-subagent {
+    border-color: var(--subagent-color);
+    background: rgba(26, 188, 156, 0.10);
+    color: var(--text);
+  }
+  .msg-subagent .tool-name {
+    color: var(--subagent-color);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .msg-observe {
+    border-color: var(--observe-color);
+    background: rgba(46, 204, 113, 0.08);
+    color: #b8e6c8;
+    max-width: 100%;
+    width: 100%;
+    max-height: none;
+    font-size: 13px;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+
+  .msg-system {
+    align-self: center;
+    max-width: 70%;
+    background: rgba(155, 89, 182, 0.06);
+    border: 1px solid rgba(155, 89, 182, 0.15);
+    color: var(--system-color);
+    font-size: 13px;
+    text-align: center;
+    border-radius: var(--radius-md);
+    padding: 10px 16px;
+  }
+
+  .msg-error {
+    align-self: center;
+    max-width: 70%;
+    background: rgba(231, 76, 60, 0.06);
+    border: 1px solid rgba(231, 76, 60, 0.15);
+    color: var(--error-color);
+    font-size: 13px;
+    border-radius: var(--radius-md);
+    padding: 10px 16px;
+  }
+
+  .step-tag {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.7;
+    margin-bottom: 6px;
+  }
+
+  /* ── Thinking indicator ──────────────────────────────────────────── */
+  .thinking {
+    align-self: flex-start;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .thinking.active { display: flex; }
+
+  .thinking-dots {
+    display: flex;
+    gap: 3px;
+  }
+  .thinking-dots span {
+    width: 5px;
+    height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.4s infinite;
+  }
+  .thinking-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .thinking-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes pulse {
+    0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1.1); }
+  }
+
+  .thinking-bar {
+    height: 2px;
+    background: var(--accent-glow);
+    border-radius: 1px;
+    overflow: hidden;
+    flex: 1;
+    max-width: 80px;
+  }
+  .thinking-bar-fill {
+    height: 100%;
+    width: 30%;
+    background: var(--accent);
+    border-radius: 1px;
+    animation: slide 1.5s ease-in-out infinite;
+  }
+  @keyframes slide {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(400%); }
+  }
+
+  /* ── Input Area ──────────────────────────────────────────────────── */
+  .input-area {
+    padding: 16px 24px 20px;
+    background: var(--surface-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 2;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .input-wrap {
+    flex: 1;
+    position: relative;
+  }
+
+  #input {
+    width: 100%;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 13px 48px 13px 16px;
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 14px;
+    resize: none;
+    max-height: 140px;
+    min-height: 46px;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+  #input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-glow); }
+  #input::placeholder { color: var(--text-muted); }
+
+  .input-actions {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    display: flex;
+    gap: 4px;
+  }
+
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .btn-icon:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+
+  #send-btn {
+    width: 46px;
+    height: 46px;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-md);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  #send-btn:hover { background: var(--accent-bright); box-shadow: var(--shadow-glow); }
+  #send-btn:active { transform: scale(0.95); }
+  #send-btn:disabled { opacity: 0.3; cursor: default; box-shadow: none; }
+
+  .input-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    padding-left: 2px;
+  }
+
+  /* ── File drop overlay ───────────────────────────────────────────── */
+  .drop-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 5, 8, 0.9);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    border: 2px dashed var(--accent);
+    border-radius: var(--radius-lg);
+    margin: 20px;
+    color: var(--accent);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .drop-overlay.visible { display: flex; }
+
+  /* Hidden file input */
+  #file-input { display: none; }
+
+  /* ── Mobile ──────────────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed;
+      left: -280px;
+      top: 0;
+      bottom: 0;
+      z-index: 50;
+      transition: left 0.25s ease;
+      box-shadow: none;
+    }
+    .sidebar.open {
+      left: 0;
+      box-shadow: 20px 0 60px rgba(0,0,0,0.8);
+    }
+    .mobile-toggle { display: block; }
+    .msg { max-width: 92%; }
+    .welcome-cmds { grid-template-columns: 1fr; }
+    #chat { padding: 16px; }
+    .input-area { padding: 12px 16px 16px; }
+  }
+
+  /* ── Sessions ─────────────────────────────────────────────────────── */
+  .btn-new-session {
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .btn-new-session:hover { background: var(--accent); color: #fff; }
+
+  .session-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .session-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-secondary);
+    transition: background 0.15s;
+  }
+  .session-item:hover { background: rgba(255,255,255,0.04); }
+  .session-item.active {
+    background: var(--accent-glow);
+    color: var(--text);
+    border-left: 2px solid var(--accent);
+  }
+
+  .session-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .session-delete {
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.15s;
+  }
+  .session-item:hover .session-delete { opacity: 1; }
+  .session-delete:hover { background: var(--error-color); color: #fff; }
+
+  /* ── Focus visible ───────────────────────────────────────────────── */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar" role="complementary" aria-label="Panneau lateral">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-glyph" aria-hidden="true"><img src="/logo.png" alt="Setharkk"></div>
+      <span class="logo-name">Setharkk</span>
+    </div>
+  </div>
+
+  <div class="sidebar-scroll">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Statut</div>
+      <div class="status-row">
+        <div class="status-indicator" id="wsStatus"></div>
+        <span id="wsLabel">Connexion...</span>
+      </div>
+      <div class="status-row">
+        <div class="status-indicator" id="llmStatus"></div>
+        <span>LLM</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label" style="display:flex;justify-content:space-between;align-items:center;">
+        Sessions
+        <button class="btn-new-session" id="newSessionBtn" title="Nouvelle conversation">+</button>
+      </div>
+      <div id="sessionList" class="session-list"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Commandes</div>
+      <ul class="cmd-list" role="list">
+        <li class="cmd-item" data-cmd="/tools" role="button" tabindex="0"><span class="cmd-key">/tools</span> Outils</li>
+        <li class="cmd-item" data-cmd="/memory" role="button" tabindex="0"><span class="cmd-key">/memory</span> Memoire</li>
+        <li class="cmd-item" data-cmd="/status" role="button" tabindex="0"><span class="cmd-key">/status</span> Statut</li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Outils</div>
+      <div class="tools-grid" id="toolsList">
+        <div class="tool-chip"><span class="tool-dot"></span>chargement...</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="mobile-toggle" id="menuBtn" aria-label="Menu">&#9776;</button>
+      <span class="topbar-title">Agent Autonome Local</span>
+    </div>
+    <div class="topbar-status">
+      <span id="iterLabel"></span>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div id="chat" role="log" aria-live="polite" aria-label="Conversation">
+
+    <!-- Welcome (shown initially) -->
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon" aria-hidden="true"><img src="/logo.png" alt="Setharkk"></div>
+      <h2>Setharkk</h2>
+      <p>Agent autonome local. Pose une question, donne une tache, ou utilise une commande.</p>
+      <div class="welcome-cmds">
+        <div class="welcome-cmd" data-cmd="/tools">
+          <div class="welcome-cmd-key">/tools</div>
+          <div class="welcome-cmd-desc">Lister les outils disponibles</div>
+        </div>
+        <div class="welcome-cmd" data-cmd="/memory">
+          <div class="welcome-cmd-key">/memory</div>
+          <div class="welcome-cmd-desc">Voir la memoire de session</div>
+        </div>
+        <div class="welcome-cmd" data-cmd="/status">
+          <div class="welcome-cmd-key">/status</div>
+          <div class="welcome-cmd-desc">Statut des sous-agents</div>
+        </div>
+        <div class="welcome-cmd" data-cmd="/clear">
+          <div class="welcome-cmd-key">/clear</div>
+          <div class="welcome-cmd-desc">Nouvelle session</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thinking indicator -->
+    <div class="thinking" id="thinking" aria-label="Setharkk reflechit">
+      <div class="thinking-dots"><span></span><span></span><span></span></div>
+      <span>Reflexion en cours...</span>
+      <div class="thinking-bar"><div class="thinking-bar-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- Drop overlay -->
+  <div class="drop-overlay" id="dropOverlay" aria-hidden="true">
+    <span style="font-size:32px">&#128196;</span>
+    Deposer le fichier ici
+  </div>
+
+  <!-- Input -->
+  <div class="input-area">
+    <div class="input-row">
+      <div class="input-wrap">
+        <textarea id="input" rows="1" placeholder="Parle a Setharkk..." autofocus
+                  aria-label="Message"></textarea>
+        <div class="input-actions">
+          <button class="btn-icon" id="uploadBtn" title="Charger un fichier" aria-label="Charger un fichier">&#128206;</button>
+        </div>
+      </div>
+      <button id="send-btn" disabled title="Envoyer" aria-label="Envoyer">&#9654;</button>
+    </div>
+    <div class="input-hint">Entree pour envoyer &middot; Shift+Entree pour sauter une ligne</div>
+    <input type="file" id="file-input" accept=".txt,.md,.py,.js,.json,.yaml,.yml,.toml,.csv,.log">
+  </div>
+</div>
+
+<script>
+/* ── DOM ─────────────────────────────────────────────────── */
+const $ = (s) => document.querySelector(s);
+const chat = $('#chat');
+const input = $('#input');
+const sendBtn = $('#send-btn');
+const thinking = $('#thinking');
+const welcome = $('#welcome');
+const wsStatus = $('#wsStatus');
+const wsLabel = $('#wsLabel');
+const llmStatus = $('#llmStatus');
+const toolsList = $('#toolsList');
+const sidebar = $('#sidebar');
+const menuBtn = $('#menuBtn');
+const dropOverlay = $('#dropOverlay');
+const fileInput = $('#file-input');
+const uploadBtn = $('#uploadBtn');
+
+let ws = null;
+let busy = false;
+let pendingFileContent = null;
+const MAX_HISTORY = 200;
+
+/* ── Multi-session management ─────────────────────────── */
+const SESSIONS_KEY = 'setharkk_sessions';
+let currentSessionId = null;
+
+function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function getSessions() {
+  return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]');
+}
+
+function saveSessions(sessions) {
+  localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+}
+
+function getSessionStorageKey(id) { return `setharkk_chat_${id}`; }
+
+function createSession() {
+  const sessions = getSessions();
+  const id = generateId();
+  const session = { id, name: 'Nouvelle conversation', created: Date.now(), lastMsg: '' };
+  sessions.unshift(session);
+  saveSessions(sessions);
+  switchToSession(id);
+  // Reset serveur aussi
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ message: '/clear' }));
+  }
+}
+
+function deleteSession(id) {
+  let sessions = getSessions();
+  sessions = sessions.filter(s => s.id !== id);
+  saveSessions(sessions);
+  localStorage.removeItem(getSessionStorageKey(id));
+  if (currentSessionId === id) {
+    if (sessions.length > 0) {
+      switchToSession(sessions[0].id);
+    } else {
+      createSession();
+    }
+  } else {
+    renderSessionList();
+  }
+}
+
+function switchToSession(id) {
+  currentSessionId = id;
+  localStorage.setItem('setharkk_active_session', id);
+  // Vider le chat
+  chat.querySelectorAll('.msg').forEach(el => el.remove());
+  if (welcome) welcome.style.display = '';
+  // Charger l'historique de cette session
+  loadHistory();
+  renderSessionList();
+  // Reset serveur pour nouvelle session
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ message: '/clear' }));
+  }
+}
+
+function updateSessionName(text) {
+  const sessions = getSessions();
+  const session = sessions.find(s => s.id === currentSessionId);
+  if (session && session.name === 'Nouvelle conversation') {
+    session.name = text.substring(0, 40);
+    session.lastMsg = text.substring(0, 60);
+    saveSessions(sessions);
+    renderSessionList();
+  }
+}
+
+function renderSessionList() {
+  const sessions = getSessions();
+  const list = $('#sessionList');
+  list.innerHTML = '';
+  sessions.forEach(s => {
+    const div = document.createElement('div');
+    div.className = `session-item${s.id === currentSessionId ? ' active' : ''}`;
+    div.innerHTML = `<span class="session-name">${escapeHtml(s.name)}</span><button class="session-delete" title="Supprimer">&#10005;</button>`;
+    div.querySelector('.session-name').addEventListener('click', () => switchToSession(s.id));
+    div.querySelector('.session-delete').addEventListener('click', (e) => { e.stopPropagation(); deleteSession(s.id); });
+    list.appendChild(div);
+  });
+}
+
+function initSessions() {
+  const sessions = getSessions();
+  const activeId = localStorage.getItem('setharkk_active_session');
+  if (sessions.length === 0) {
+    createSession();
+  } else if (activeId && sessions.find(s => s.id === activeId)) {
+    currentSessionId = activeId;
+    renderSessionList();
+  } else {
+    currentSessionId = sessions[0].id;
+    renderSessionList();
+  }
+}
+
+/* ── Markdown (lightweight) ──────────────────────────────── */
+function renderMd(text) {
+  let html = escapeHtml(text);
+
+  // Code blocks ```...```
+  html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) =>
+    `<pre><code>${code.trim()}</code></pre>`
+  );
+
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  // Bold **text**
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  // Italic *text*
+  html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+
+  // Unordered lists
+  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`);
+
+  // Ordered lists
+  html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+
+  // Line breaks
+  html = html.replace(/\n/g, '<br>');
+
+  // Clean up <br> inside <pre>
+  html = html.replace(/<pre>([\s\S]*?)<\/pre>/g, (_, inner) =>
+    `<pre>${inner.replace(/<br>/g, '\n')}</pre>`
+  );
+
+  return html;
+}
+
+function escapeHtml(text) {
+  const d = document.createElement('div');
+  d.textContent = text;
+  return d.innerHTML;
+}
+
+/* ── WebSocket ───────────────────────────────────────────── */
+function connect() {
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  ws = new WebSocket(`${proto}://${location.host}/ws`);
+
+  ws.onopen = () => {
+    wsStatus.className = 'status-indicator on';
+    wsLabel.textContent = 'Connecte';
+    llmStatus.className = 'status-indicator on';
+    sendBtn.disabled = false;
+  };
+
+  ws.onclose = () => {
+    wsStatus.className = 'status-indicator err';
+    wsLabel.textContent = 'Deconnecte';
+    llmStatus.className = 'status-indicator';
+    sendBtn.disabled = true;
+    busy = false;
+    setThinking(false);
+    setTimeout(connect, 3000);
+  };
+
+  ws.onerror = () => {
+    wsStatus.className = 'status-indicator err';
+    wsLabel.textContent = 'Erreur';
+  };
+
+  ws.onmessage = (evt) => {
+    const msg = JSON.parse(evt.data);
+    handleMessage(msg);
+  };
+}
+
+/* ── Message handler ─────────────────────────────────────── */
+function handleMessage(msg) {
+  // Welcome
+  if (msg.type === 'welcome') {
+    if (msg.tools) {
+      toolsList.innerHTML = msg.tools.map(t =>
+        `<div class="tool-chip"><span class="tool-dot"></span>${escapeHtml(t)}</div>`
+      ).join('');
+    }
+    return;
+  }
+
+  // Done
+  if (msg.type === 'done') {
+    busy = false;
+    sendBtn.disabled = false;
+    setThinking(false);
+    return;
+  }
+
+  // Structured responses
+  // /clear handled by session management, not here
+
+  if (msg.type === 'tools_list') {
+    const lines = msg.tools.map(t => `**${t.name}** : ${t.description}`).join('\n');
+    addSystemMsg(lines);
+    return;
+  }
+
+  if (msg.type === 'memory_info') {
+    let text = `Messages en session : ${msg.count}`;
+    if (msg.recent) {
+      msg.recent.forEach(m => { text += `\n  [${m.role}] ${m.content}`; });
+    }
+    addSystemMsg(text);
+    return;
+  }
+
+  if (msg.type === 'status_info') {
+    let text = 'Sous-agents :';
+    for (const [name, desc] of Object.entries(msg.subagents || {})) {
+      text += `\n  ${name}: ${desc}`;
+    }
+    text += `\nEvents: ${msg.events_count}`;
+    if (msg.blackboard) {
+      text += `\nBlackboard: task=${msg.blackboard.task || '-'}, errors=${msg.blackboard.errors}, decisions=${msg.blackboard.decisions}`;
+    }
+    addSystemMsg(text);
+    return;
+  }
+
+  // Step messages
+  hideWelcome();
+  const content = msg.content || '';
+
+  if (msg.type === 'response') {
+    addMsg('msg-response', 'SETHARKK', renderMd(content), false);
+    saveMsg({ role: 'response', text: content });
+  } else if (msg.type === 'think') {
+    addThink(content);
+  } else if (msg.type === 'act') {
+    const isSubagent = msg.is_subagent;
+    const cls = isSubagent ? 'msg-subagent' : 'msg-act';
+    const label = isSubagent ? 'SUBAGENT' : 'ACT';
+    addActMsg(cls, label, msg.tool_name || '', msg.tool_args || {});
+  } else if (msg.type === 'observe') {
+    addObserveMsg(content);
+  } else if (msg.type === 'system') {
+    addSystemMsg(content);
+  } else if (msg.type === 'error') {
+    addMsg('msg-error', 'ERREUR', escapeHtml(content), false);
+  } else {
+    addMsg('msg-response', '', escapeHtml(content), false);
+  }
+}
+
+/* ── DOM helpers ──────────────────────────────────────────── */
+function addMsg(cls, label, html, isStep, skipSave) {
+  const div = document.createElement('div');
+  div.className = `msg ${isStep ? 'msg-step ' : ''}${cls}`;
+  const labelHtml = label ? `<div class="step-tag">${label}</div>` : '';
+  div.innerHTML = labelHtml + html;
+  chat.insertBefore(div, thinking);
+  scrollBottom();
+}
+
+function addThink(content, skipSave) {
+  const div = document.createElement('div');
+  div.className = 'msg msg-step msg-think collapsed';
+  let clean = content.replace(/<\/?think>/g, '').trim();
+  if (clean.length > 300) clean = clean.substring(0, 300) + '...';
+  div.innerHTML = `<div class="step-tag">THINK <span class="expand-hint">(cliquer)</span></div>${escapeHtml(clean)}`;
+  div.addEventListener('click', () => div.classList.toggle('collapsed'));
+  chat.insertBefore(div, thinking);
+  scrollBottom();
+  if (!skipSave) saveMsg({ role: 'think', text: clean });
+}
+
+function addActMsg(cls, label, toolName, toolArgs, skipSave) {
+  const div = document.createElement('div');
+  div.className = `msg msg-step ${cls}`;
+  let argsHtml = '';
+  if (toolArgs && Object.keys(toolArgs).length > 0) {
+    const parts = Object.entries(toolArgs).map(([k, v]) => {
+      const val = typeof v === 'string' ? v : JSON.stringify(v);
+      const display = val.length > 120 ? val.substring(0, 120) + '...' : val;
+      return `<span style="color:var(--text-muted)">${escapeHtml(k)}:</span> ${escapeHtml(display)}`;
+    });
+    argsHtml = `<div class="tool-args">${parts.join('<br>')}</div>`;
+  }
+  div.innerHTML = `<div class="step-tag">${label}</div><span class="tool-name">${escapeHtml(toolName)}</span>${argsHtml}`;
+  chat.insertBefore(div, thinking);
+  scrollBottom();
+  if (!skipSave) saveMsg({ role: 'act', toolName, toolArgs, isSubagent: cls === 'msg-subagent' });
+}
+
+function addObserveMsg(content, skipSave) {
+  const div = document.createElement('div');
+  div.className = 'msg msg-step msg-observe';
+  let display = content;
+  if (display.length > 2000) display = display.substring(0, 2000) + '\n\n[... tronque ...]';
+  div.innerHTML = `<div class="step-tag">OBSERVE</div>${escapeHtml(display)}`;
+  chat.insertBefore(div, thinking);
+  scrollBottom();
+  if (!skipSave) saveMsg({ role: 'observe', text: display });
+}
+
+function addSystemMsg(content, skipSave) {
+  hideWelcome();
+  addMsg('msg-system', '', escapeHtml(content), false, true);
+  if (!skipSave) saveMsg({ role: 'system', text: content });
+}
+
+function addUserMsg(text, skipSave) {
+  hideWelcome();
+  const div = document.createElement('div');
+  div.className = 'msg msg-user';
+  div.textContent = text;
+  chat.insertBefore(div, thinking);
+  scrollBottom();
+  if (!skipSave) saveMsg({ role: 'user', text });
+}
+
+function hideWelcome() {
+  if (welcome) welcome.style.display = 'none';
+}
+
+function scrollBottom() {
+  requestAnimationFrame(() => { chat.scrollTop = chat.scrollHeight; });
+}
+
+function setThinking(on) {
+  thinking.className = on ? 'thinking active' : 'thinking';
+  if (on) scrollBottom();
+}
+
+/* ── Send ─────────────────────────────────────────────────── */
+function send() {
+  const text = input.value.trim();
+  if (!text || busy || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+  addUserMsg(text);
+  updateSessionName(text);
+
+  const payload = { message: text };
+  if (text.startsWith('/file') && pendingFileContent) {
+    payload.file_content = pendingFileContent;
+    pendingFileContent = null;
+  }
+
+  ws.send(JSON.stringify(payload));
+  input.value = '';
+  input.style.height = 'auto';
+  busy = true;
+  sendBtn.disabled = true;
+  setThinking(true);
+}
+
+/* ── Textarea auto-resize ─────────────────────────────────── */
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+});
+
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+});
+
+sendBtn.addEventListener('click', send);
+
+/* ── Sidebar commands ─────────────────────────────────────── */
+document.querySelectorAll('[data-cmd]').forEach(el => {
+  el.addEventListener('click', () => {
+    const cmd = el.getAttribute('data-cmd');
+    input.value = cmd;
+    send();
+    sidebar.classList.remove('open');
+  });
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+  });
+});
+
+/* ── Mobile menu ──────────────────────────────────────────── */
+menuBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+document.addEventListener('click', (e) => {
+  if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuBtn) {
+    sidebar.classList.remove('open');
+  }
+});
+
+/* ── File upload ──────────────────────────────────────────── */
+uploadBtn.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', async () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const text = await file.text();
+  pendingFileContent = text;
+  input.value = `/file ${file.name}`;
+  input.focus();
+  addSystemMsg(`Fichier "${file.name}" charge (${text.length} chars). Appuie sur Entree pour envoyer.`);
+  fileInput.value = '';
+});
+
+/* ── Drag & drop ──────────────────────────────────────────── */
+let dragCounter = 0;
+const mainEl = document.querySelector('.main');
+
+mainEl.addEventListener('dragenter', (e) => { e.preventDefault(); dragCounter++; dropOverlay.classList.add('visible'); });
+mainEl.addEventListener('dragleave', (e) => { e.preventDefault(); dragCounter--; if (dragCounter <= 0) { dragCounter = 0; dropOverlay.classList.remove('visible'); } });
+mainEl.addEventListener('dragover', (e) => e.preventDefault());
+mainEl.addEventListener('drop', async (e) => {
+  e.preventDefault();
+  dragCounter = 0;
+  dropOverlay.classList.remove('visible');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const text = await file.text();
+  pendingFileContent = text;
+  input.value = `/file ${file.name}`;
+  input.focus();
+  addSystemMsg(`Fichier "${file.name}" depose (${text.length} chars). Appuie sur Entree pour envoyer.`);
+});
+
+/* ── Health check ─────────────────────────────────────────── */
+async function checkHealth() {
+  try {
+    const res = await fetch('/api/health');
+    const data = await res.json();
+    llmStatus.className = data.status === 'ok' ? 'status-indicator on' : 'status-indicator err';
+  } catch {
+    llmStatus.className = 'status-indicator err';
+  }
+}
+
+/* ── Persistence localStorage par session ──────────────────── */
+function saveMsg(msg) {
+  if (!currentSessionId) return;
+  const key = getSessionStorageKey(currentSessionId);
+  const history = JSON.parse(localStorage.getItem(key) || '[]');
+  history.push(msg);
+  while (history.length > MAX_HISTORY) history.shift();
+  localStorage.setItem(key, JSON.stringify(history));
+}
+
+function loadHistory() {
+  if (!currentSessionId) return;
+  const key = getSessionStorageKey(currentSessionId);
+  const history = JSON.parse(localStorage.getItem(key) || '[]');
+  if (history.length === 0) return;
+  hideWelcome();
+  history.forEach(msg => {
+    if (msg.role === 'user') {
+      addUserMsg(msg.text, true);
+    } else if (msg.role === 'response') {
+      addMsg('msg-response', 'SETHARKK', renderMd(msg.text), false, true);
+    } else if (msg.role === 'act') {
+      addActMsg(msg.isSubagent ? 'msg-subagent' : 'msg-act', msg.isSubagent ? 'SUBAGENT' : 'ACT', msg.toolName || '', msg.toolArgs || {}, true);
+    } else if (msg.role === 'observe') {
+      addObserveMsg(msg.text, true);
+    } else if (msg.role === 'think') {
+      addThink(msg.text, true);
+    } else if (msg.role === 'system') {
+      addSystemMsg(msg.text, true);
+    }
+  });
+  scrollBottom();
+}
+
+function clearHistory() {
+  if (!currentSessionId) return;
+  localStorage.removeItem(getSessionStorageKey(currentSessionId));
+}
+
+/* ── New session button ────────────────────────────────────── */
+$('#newSessionBtn').addEventListener('click', createSession);
+
+/* ── Init ─────────────────────────────────────────────────── */
+initSessions();
+loadHistory();
+connect();
+setInterval(checkHealth, 30000);
+</script>
+</body>
+</html>
